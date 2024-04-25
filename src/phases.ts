@@ -1610,11 +1610,13 @@ export class TurnInitPhase extends FieldPhase {
 
 export class CommandPhase extends FieldPhase {
   protected fieldIndex: integer;
+  // protected selectedTarget: EnemyPokemon;
 
-  constructor(scene: BattleScene, fieldIndex: integer) {
+  constructor(scene: BattleScene, fieldIndex: integer, selectedTarget?: EnemyPokemon) {
     super(scene);
 
     this.fieldIndex = fieldIndex;
+    // this.selectedTarget = selectedTarget;
   }
 
   start() {
@@ -1681,7 +1683,8 @@ export class CommandPhase extends FieldPhase {
           if (moveTargets.targets.length <= 1 || moveTargets.multiple)
             turnCommand.move.targets = moveTargets.targets;
           else
-            this.scene.unshiftPhase(new SelectTargetPhase(this.scene, this.fieldIndex));
+            this.scene.unshiftPhase(new SelectTargetPhase(this.scene, this.fieldIndex)); 
+    
           this.scene.currentBattle.turnCommands[this.fieldIndex] = turnCommand;
           success = true;
         } else if (cursor < playerPokemon.getMoveset().length) {
@@ -1902,16 +1905,17 @@ export class SelectTargetPhase extends PokemonPhase {
 
   start() {
     super.start();
-
     const turnCommand = this.scene.currentBattle.turnCommands[this.fieldIndex];
     const move = turnCommand.move?.move;
     this.scene.ui.setMode(Mode.TARGET_SELECT, this.fieldIndex, move, (cursor: integer) => {
+      turnCommand.targets = [ cursor ];
       this.scene.ui.setMode(Mode.MESSAGE);
       if (cursor === -1) {
         this.scene.currentBattle.turnCommands[this.fieldIndex] = null;
-        this.scene.unshiftPhase(new CommandPhase(this.scene, this.fieldIndex));
-      } else
+        this.scene.unshiftPhase(new CommandPhase(this.scene, this.fieldIndex,this.scene.selectedTarget));
+      } else{
         turnCommand.targets = [ cursor ];
+      }
       if (turnCommand.command === Command.BALL && this.fieldIndex)
         this.scene.currentBattle.turnCommands[this.fieldIndex - 1].skip = true;
       this.end();
@@ -3210,6 +3214,7 @@ export class VictoryPhase extends PokemonPhase {
     const multipleParticipantExpBonusModifier = this.scene.findModifier(m => m instanceof MultipleParticipantExpBonusModifier) as MultipleParticipantExpBonusModifier;
     const expPartyMembers = party.filter(p => p.hp && p.level < this.scene.getMaxExpLevel());
     const partyMemberExp = [];
+    this.scene.selectedTarget=null;
 
     if (participantIds.size) {
       let expValue = this.getPokemon().getExpValue();
