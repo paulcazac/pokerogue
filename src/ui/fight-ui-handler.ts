@@ -1,6 +1,6 @@
 import BattleScene, { Button } from "../battle-scene";
 import { addTextObject, TextStyle } from "./text";
-import { Type } from "../data/type";
+import { getTypeDamageMultiplier, Type } from "../data/type";
 import { Command } from "./command-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
@@ -8,6 +8,8 @@ import * as Utils from "../utils";
 import { CommandPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from '../plugins/i18n';
+import { EnemyPokemon, PlayerPokemon } from "../field/pokemon.js";
+import  Move  from "../data/move";
 
 export default class FightUiHandler extends UiHandler {
   private movesContainer: Phaser.GameObjects.Container;
@@ -67,11 +69,23 @@ export default class FightUiHandler extends UiHandler {
     super.show(args);
 
     this.fieldIndex = args.length ? args[0] as integer : 0;
-
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
     this.setCursor(this.getCursor());
+    this.displayMoves(this.scene.selectedTarget);
+
+    return true;
+  }
+
+  showTargettedMoves(args: any[]): boolean {
+    super.show(args);
+
+    this.fieldIndex = args.length ? args[0] as integer : 0;
+
+    const messageHandler = this.getUi().getMessageHandler();
+    messageHandler.commandWindow.setVisible(false);
+    messageHandler.movesWindowContainer.setVisible(true);
     this.displayMoves();
 
     return true;
@@ -135,8 +149,8 @@ export default class FightUiHandler extends UiHandler {
       else
         this.cursor2 = cursor;
     }
-
     if (!this.cursorObj) {
+      
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       ui.add(this.cursorObj);
     }
@@ -170,13 +184,39 @@ export default class FightUiHandler extends UiHandler {
     return changed;
   }
 
-  displayMoves() {
+// have a listener to update dynamically when changing options in settings.ts AND keep move window active during SelectTargetPhase and have it dynamically change there too depending on which pokemon im hovering over
+  displayMoves(pokemon?: EnemyPokemon) {
+    const opponentPokemon = pokemon || this.scene.getEnemyPokemon();
+    
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
+  
     for (let m = 0; m < 4; m++) {
       const moveText = addTextObject(this.scene, m % 2 === 0 ? 0 : 100, m < 2 ? 0 : 16, '-', TextStyle.WINDOW);
-      if (m < moveset.length)
+
+      if (m < moveset.length){
+        const pokemonMove = moveset[m];
         moveText.setText(moveset[m].getName());
+        const effectiveness = (opponentPokemon.getAttackMoveEffectiveness(opponentPokemon,pokemonMove))
+        
+        let color = "white"; // Default to white if setting is off or for normal effectiveness
+        if (this.scene.showEffectiveness) {
+          if (effectiveness === 0) {
+            color = "gray"; // No effect
+          } else if (effectiveness === 4) {
+            color = "limegreen"; // x4 Super effective
+          } else if (effectiveness === 2) {
+            color = "green"; // x2 Super effective
+          } else if (effectiveness === 0.5) {
+            color = "red"; // x0.5 Not very effective
+          } else if (effectiveness === 0.25) {
+            color = "darkred"; // x0.25 Not very effective
+          }
+        }
+        moveText.setColor(color);
+        
+      }
       this.movesContainer.add(moveText);
+      
     }
   }
 
@@ -201,4 +241,5 @@ export default class FightUiHandler extends UiHandler {
       this.cursorObj.destroy();
     this.cursorObj = null;
   }
+
 }
