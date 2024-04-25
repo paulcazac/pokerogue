@@ -38,6 +38,7 @@ export default class TargetSelectUiHandler extends UiHandler {
    }
 
   show(args: any[]): boolean {
+    console.log("SHOW")
     if (args.length < 3)
       return false;
 
@@ -161,6 +162,7 @@ export default class TargetSelectUiHandler extends UiHandler {
     }
     if (target)
       target.setAlpha(1);
+    
   }
 
   clear() {

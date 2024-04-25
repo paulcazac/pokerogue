@@ -1610,11 +1610,13 @@ export class TurnInitPhase extends FieldPhase {
 
 export class CommandPhase extends FieldPhase {
   protected fieldIndex: integer;
+  // protected selectedTarget: EnemyPokemon;
 
-  constructor(scene: BattleScene, fieldIndex: integer) {
+  constructor(scene: BattleScene, fieldIndex: integer, selectedTarget?: EnemyPokemon) {
     super(scene);
 
     this.fieldIndex = fieldIndex;
+    // this.selectedTarget = selectedTarget;
   }
 
   start() {
@@ -1912,8 +1914,8 @@ export class SelectTargetPhase extends PokemonPhase {
       this.scene.ui.setMode(Mode.MESSAGE);
       if (cursor === -1) {
         this.scene.currentBattle.turnCommands[this.fieldIndex] = null;
-        this.scene.unshiftPhase(new CommandPhase(this.scene, this.fieldIndex));
-      } else
+        this.scene.unshiftPhase(new CommandPhase(this.scene, this.fieldIndex,this.scene.selectedTarget));
+      } else{
         turnCommand.targets = [ cursor ];
         this.scene.newEncounter=false;
       if (turnCommand.command === Command.BALL && this.fieldIndex)

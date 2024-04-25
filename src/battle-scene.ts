@@ -15,7 +15,7 @@ import { GameData, PlayerGender } from './system/game-data';
 import StarterSelectUiHandler from './ui/starter-select-ui-handler';
 import { TextStyle, addBBCodeTextObject, addTextObject } from './ui/text';
 import { Moves } from "./data/enums/moves";
-import { allMoves } from "./data/move";
+import Move, { allMoves } from "./data/move";
 import { initMoves } from './data/move';
 import { ModifierPoolType, getDefaultModifierTypeForTier, getEnemyModifierTypesForWave, getLuckString, getLuckTextTint, getModifierPoolForType, getPartyLuckValue } from './modifier/modifier-type';
 import AbilityBar from './ui/ability-bar';
@@ -60,22 +60,26 @@ import { SceneBase } from './scene-base';
 import CandyBar from './ui/candy-bar';
 import { Variant, variantData } from './data/variant';
 import { Localizable } from './plugins/i18n';
+import FightUiHandler from './ui/fight-ui-handler';
 
 export const bypassLogin = import.meta.env.VITE_BYPASS_LOGIN === "1";
 
 export const SEED_OVERRIDE = '';
-export const STARTER_SPECIES_OVERRIDE = 0;
+export const STARTER_SPECIES_OVERRIDE = 56;
 export const STARTER_FORM_OVERRIDE = 0;
-export const STARTING_LEVEL_OVERRIDE = 0;
+export const STARTING_LEVEL_OVERRIDE = 100;
 export const STARTING_WAVE_OVERRIDE = 0;
 export const STARTING_BIOME_OVERRIDE = Biome.TOWN;
 export const STARTING_MONEY_OVERRIDE = 0;
 
 export const ABILITY_OVERRIDE = Abilities.NONE;
-export const MOVE_OVERRIDE = Moves.NONE;
+export const MOVE_OVERRIDE = Moves.DRAGON_ASCENT;
+export const MOVE_OVERRIDE_1 = Moves.METEOR_BEAM;
+export const MOVE_OVERRIDE_2 = Moves.WATER_SPOUT;
+export const MOVE_OVERRIDE_3 = Moves.DRAIN_PUNCH;
 export const OPP_SPECIES_OVERRIDE = 0;
 export const OPP_ABILITY_OVERRIDE = Abilities.NONE;
-export const OPP_MOVE_OVERRIDE = Moves.NONE;
+export const OPP_MOVE_OVERRIDE = Moves.TAIL_WHIP;
 
 const DEBUG_RNG = false;
 

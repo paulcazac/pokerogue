@@ -1,6 +1,6 @@
 import BattleScene, { Button } from "../battle-scene";
 import { addTextObject, TextStyle } from "./text";
-import { Type } from "../data/type";
+import { getTypeDamageMultiplier, Type } from "../data/type";
 import { Command } from "./command-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
@@ -69,7 +69,6 @@ export default class FightUiHandler extends UiHandler {
     super.show(args);
 
     this.fieldIndex = args.length ? args[0] as integer : 0;
-
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
@@ -150,8 +149,8 @@ export default class FightUiHandler extends UiHandler {
       else
         this.cursor2 = cursor;
     }
-
     if (!this.cursorObj) {
+      
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       ui.add(this.cursorObj);
     }
@@ -214,6 +213,7 @@ export default class FightUiHandler extends UiHandler {
         
       }
       this.movesContainer.add(moveText);
+      
     }
   }
 
