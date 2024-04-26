@@ -177,7 +177,7 @@ export default class BattleScene extends SceneBase {
 	public pokeballCounts: PokeballCounts;
 	public money: integer;
 	public pokemonInfoContainer: PokemonInfoContainer;
-	public selectedTarget: EnemyPokemon;
+	public selectedTarget: Pokemon;
 	private party: PlayerPokemon[];
 	private waveCountText: Phaser.GameObjects.Text;
 	private moneyText: Phaser.GameObjects.Text;
