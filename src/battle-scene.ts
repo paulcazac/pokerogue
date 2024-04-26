@@ -73,10 +73,10 @@ export const STARTING_BIOME_OVERRIDE = Biome.TOWN;
 export const STARTING_MONEY_OVERRIDE = 0;
 
 export const ABILITY_OVERRIDE = Abilities.NONE;
-export const MOVE_OVERRIDE = Moves.DRAGON_ASCENT;
-export const MOVE_OVERRIDE_1 = Moves.METEOR_BEAM;
-export const MOVE_OVERRIDE_2 = Moves.WATER_SPOUT;
-export const MOVE_OVERRIDE_3 = Moves.DRAIN_PUNCH;
+export const MOVE_OVERRIDE = Moves.NONE;
+export const MOVE_OVERRIDE_1 = Moves.NONE;
+export const MOVE_OVERRIDE_2 = Moves.NONE;
+export const MOVE_OVERRIDE_3 = Moves.NONE;
 export const OPP_SPECIES_OVERRIDE = 0;
 export const OPP_ABILITY_OVERRIDE = Abilities.NONE;
 export const OPP_MOVE_OVERRIDE = Moves.TAIL_WHIP;

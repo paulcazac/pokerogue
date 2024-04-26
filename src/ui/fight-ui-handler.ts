@@ -68,15 +68,12 @@ export default class FightUiHandler extends UiHandler {
 
   show(args: any[]): boolean {
     super.show(args);
-
-    console.log(this.selectedMove)
     this.fieldIndex = args.length ? args[0] as integer : 0;
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
     this.setCursor(this.getCursor());
     this.displayMoves(this.scene.selectedTarget);
-    console.log(this.scene.selectedTarget)
 
     return true;
   }
