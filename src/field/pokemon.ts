@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import BattleScene, { ABILITY_OVERRIDE, AnySound, MOVE_OVERRIDE, MOVE_OVERRIDE_1, MOVE_OVERRIDE_2, MOVE_OVERRIDE_3, OPP_ABILITY_OVERRIDE, OPP_MOVE_OVERRIDE } from '../battle-scene';
+import BattleScene, { ABILITY_OVERRIDE, AnySound, MOVE_OVERRIDE, OPP_ABILITY_OVERRIDE, OPP_MOVE_OVERRIDE } from '../battle-scene';
 import { Variant, VariantSet, variantColorCache } from '#app/data/variant';
 import { variantData } from '#app/data/variant';
 import BattleInfo, { PlayerBattleInfo, EnemyBattleInfo } from '../ui/battle-info';
@@ -697,25 +697,11 @@ export default abstract class Pokemon extends Phaser.GameObjects.Container {
       ? this.summonData.moveset
       : this.moveset;
  
-    if (MOVE_OVERRIDE && this.isPlayer()){
+    if (MOVE_OVERRIDE && this.isPlayer())
       this.moveset[0] = new PokemonMove(MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[MOVE_OVERRIDE].pp));
-    }
-    if (MOVE_OVERRIDE_1 && this.isPlayer()){
-      this.moveset[1] = new PokemonMove(MOVE_OVERRIDE_1, Math.min(this.moveset[0].ppUsed, allMoves[MOVE_OVERRIDE_1].pp));
-    }
-    if (MOVE_OVERRIDE_2 && this.isPlayer()){
-      this.moveset[2] = new PokemonMove(MOVE_OVERRIDE_2, Math.min(this.moveset[0].ppUsed, allMoves[MOVE_OVERRIDE_2].pp));
-    }
-    if (MOVE_OVERRIDE_3 && this.isPlayer()){
-      this.moveset[3] = new PokemonMove(MOVE_OVERRIDE_3, Math.min(this.moveset[0].ppUsed, allMoves[MOVE_OVERRIDE_3].pp));
-    }
-    
-    else if (OPP_MOVE_OVERRIDE && !this.isPlayer()){
+    else if (OPP_MOVE_OVERRIDE && !this.isPlayer())
       this.moveset[0] = new PokemonMove(OPP_MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[OPP_MOVE_OVERRIDE].pp));
-      this.moveset[1] = new PokemonMove(OPP_MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[OPP_MOVE_OVERRIDE].pp));
-      this.moveset[2] = new PokemonMove(OPP_MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[OPP_MOVE_OVERRIDE].pp));
-      this.moveset[3] = new PokemonMove(OPP_MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[OPP_MOVE_OVERRIDE].pp));
-    }
+      
       
 
     return ret;
@@ -898,7 +884,6 @@ export default abstract class Pokemon extends Phaser.GameObjects.Container {
       hpDiffRatio = Math.min(hpDiffRatio * 1.5, 1);
     return (atkScore + defScore) * hpDiffRatio;
   }
-
 
   getEvolution(): SpeciesFormEvolution {
     if (pokemonEvolutions.hasOwnProperty(this.species.speciesId)) {

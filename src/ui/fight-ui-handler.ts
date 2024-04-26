@@ -1,17 +1,16 @@
 import BattleScene, { Button } from "../battle-scene";
 import { addTextObject, TextStyle } from "./text";
-import { getTypeDamageMultiplier, Type } from "../data/type";
+import { Type } from "../data/type";
 import { Command } from "./command-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
 import * as Utils from "../utils";
-import { CommandPhase, SelectTargetPhase } from "../phases";
+import { CommandPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from '../plugins/i18n';
-import Pokemon, { EnemyPokemon, PlayerPokemon } from "../field/pokemon.js";
+import Pokemon from "../field/pokemon.js";
 import  Move  from "../data/move";
-import { PokemonMove } from "pokenode-ts";
-import { Moves } from "#app/data/enums/moves.js";
+import { Moves } from "../data/enums/moves.js";
 
 export default class FightUiHandler extends UiHandler {
   private movesContainer: Phaser.GameObjects.Container;
@@ -22,7 +21,6 @@ export default class FightUiHandler extends UiHandler {
   private powerText: Phaser.GameObjects.Text;
   private cursorObj: Phaser.GameObjects.Image;
   private moveCategoryIcon: Phaser.GameObjects.Sprite;
-  private selectedMove: Move;
 
   protected fieldIndex: integer = 0;
   protected cursor2: integer = 0;
@@ -70,7 +68,9 @@ export default class FightUiHandler extends UiHandler {
 
   show(args: any[]): boolean {
     super.show(args);
+
     this.fieldIndex = args.length ? args[0] as integer : 0;
+
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
@@ -151,13 +151,15 @@ export default class FightUiHandler extends UiHandler {
       else
         this.cursor2 = cursor;
     }
+
     if (!this.cursorObj) {
-      
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       ui.add(this.cursorObj);
     }
+
     const activePokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon()
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
+    
     const hasMove = cursor < moveset.length;
 
     this.typeIcon.setVisible(hasMove);
@@ -169,27 +171,11 @@ export default class FightUiHandler extends UiHandler {
     this.cursorObj.setPosition(13 + (cursor % 2 === 1 ? 100 : 0), -31 + (cursor >= 2 ? 15 : 0));
   
     if (hasMove) {
-      this.selectedMove = (moveset[cursor]).getMove()
       this.updateMovesWindowContainer(activePokemon,cursor)
     }
     return changed;
   }
 
-// have a listener to update dynamically when changing options in settings.ts AND keep move window active during SelectTargetPhase and have it dynamically change there too depending on which pokemon im hovering over
-  // displayMoves(pokemon?: Pokemon) {
-  //   const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
-  //   const targetPokemon = pokemon || this.scene.getEnemyPokemon();
-  //   this.setMoveColor(targetPokemon === actingPokemon ? this.scene.getEnemyPokemon() : targetPokemon, actingPokemon);
-
-  // }
-
-  // displayMovesTS(pokemon: Pokemon,move:Moves) {
-  //   const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
-  //   const targetPokemon = pokemon;
-  
-  //   this.setMoveColor(targetPokemon,actingPokemon,move)
-   
-  // }
   displayMoves(pokemon?: Pokemon,move?:Moves) {
     const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
     const targetPokemon = pokemon || this.scene.getEnemyPokemon();
@@ -230,7 +216,6 @@ export default class FightUiHandler extends UiHandler {
         
       }
       this.movesContainer.add(moveText);
-      
     }
   }
 

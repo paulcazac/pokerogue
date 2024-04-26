@@ -6,8 +6,8 @@ import UiHandler from "./ui-handler";
 import * as Utils from "../utils";
 import { getMoveTargets } from "../data/move";
 import FightUiHandler from "./fight-ui-handler";
-import { CommandPhase } from "#app/phases.js";
-import Pokemon from "#app/field/pokemon.js";
+import { CommandPhase } from "../phases.js";
+import Pokemon from "../field/pokemon.js";
 
 export type TargetSelectCallback = (cursor: integer) => void;
 
@@ -16,9 +16,8 @@ export default class TargetSelectUiHandler extends UiHandler {
   private targetSelectCallback: TargetSelectCallback;
   private fightUiHandler: FightUiHandler;
   private cursorObj: Phaser.GameObjects.Image;
-
-  protected fieldIndex: integer = 0;
-  protected cursor2: integer = 0;
+  protected fieldIndex: integer;
+  protected cursor2: integer;
 
   private targets: BattlerIndex[];
   private targetFlashTween: Phaser.Tweens.Tween;
@@ -46,7 +45,12 @@ export default class TargetSelectUiHandler extends UiHandler {
 
     this.fieldIndex = args[0] as integer;
     this.move = args[1] as Moves;
-    this.targetSelectCallback = args[2] as TargetSelectCallback;
+    this.targetSelectCallback = args[2];
+
+    if (this.scene.newEncounter===true){
+      this.cursor=-1
+    }
+
     this.targets = getMoveTargets(this.scene.getPlayerField()[this.fieldIndex], this.move).targets;
 
     const messageHandler = this.getUi().getMessageHandler();
@@ -61,7 +65,6 @@ export default class TargetSelectUiHandler extends UiHandler {
 
     this.setCursor(this.targets.indexOf(this.cursor) > -1 ? this.cursor : this.targets[0]);
     const target = this.scene.getField()[this.cursor]
-    
     this.showTargetEffectiveness(target);
 
     return true;
@@ -69,28 +72,26 @@ export default class TargetSelectUiHandler extends UiHandler {
 
   showTargetEffectiveness(target:Pokemon){
     const fieldPokemon = this.scene.getField();
-
     // Create a mapping from Pokemon name to action
     const actionMap = fieldPokemon.reduce((map, pokemon, index) => {
-        map[pokemon.name] = () => {
-            this.clearMoves();
-            this.scene.selectedTarget = fieldPokemon[index];
-            this.fightUiHandler.displayMoves(fieldPokemon[index], this.move);
-        };
-        return map;
+      map[pokemon.name] = () => {
+        this.clearMoves();
+        this.scene.selectedTarget = fieldPokemon[index];
+        this.fightUiHandler.displayMoves(fieldPokemon[index], this.move);
+      };
+      return map;
     }, {});
 
     if (actionMap[target.name]) {
-        actionMap[target.name]();
+      actionMap[target.name]();
     }
-
   }
 
   processInput(button: Button): boolean {
     const ui = this.getUi();
 
     let success = false;
-
+    
     if (button === Button.ACTION || button === Button.CANCEL) {
       this.targetSelectCallback(button === Button.ACTION ? this.cursor : -1);
       success = true;
@@ -123,7 +124,6 @@ export default class TargetSelectUiHandler extends UiHandler {
 
   setCursor(cursor: integer): boolean {
     const lastCursor = this.cursor;
-
     const ret = super.setCursor(cursor);
 
     if (this.targetFlashTween) {
@@ -136,7 +136,6 @@ export default class TargetSelectUiHandler extends UiHandler {
     const target = this.scene.getField()[cursor];
     this.showTargetEffectiveness(target);
     
-
     this.targetFlashTween = this.scene.tweens.add({
       targets: [ target ],
       alpha: 0,
@@ -168,7 +167,6 @@ export default class TargetSelectUiHandler extends UiHandler {
     this.eraseCursor();
     this.clearMoves();
     this.fightUiHandler.clear()
-    
     this.cursorObj.setVisible(false)
   }
 
@@ -188,4 +186,3 @@ export default class TargetSelectUiHandler extends UiHandler {
     this.fightUiHandler.clearMoves()
   }
 }
-
