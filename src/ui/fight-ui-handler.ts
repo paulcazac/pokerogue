@@ -9,7 +9,6 @@ import { CommandPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from '../plugins/i18n';
 import Pokemon from "../field/pokemon.js";
-import  Move  from "../data/move";
 import { Moves } from "../data/enums/moves.js";
 
 export default class FightUiHandler extends UiHandler {
@@ -159,7 +158,6 @@ export default class FightUiHandler extends UiHandler {
 
     const activePokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon()
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
-    
     const hasMove = cursor < moveset.length;
 
     this.typeIcon.setVisible(hasMove);
@@ -180,8 +178,8 @@ export default class FightUiHandler extends UiHandler {
     const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
     const targetPokemon = pokemon || this.scene.getEnemyPokemon();
     this.setMoveColor(targetPokemon === actingPokemon ? this.scene.getEnemyPokemon() : targetPokemon, actingPokemon,move);
-
   }
+  
   setMoveColor(targetPokemon:Pokemon,actingPokemon:Pokemon,move?:Moves){
     const moveset = actingPokemon.getMoveset();
     for (let m = 0; m < 4; m++) {
