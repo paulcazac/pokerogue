@@ -70,15 +70,12 @@ export default class FightUiHandler extends UiHandler {
 
   show(args: any[]): boolean {
     super.show(args);
-
-    console.log(this.selectedMove)
     this.fieldIndex = args.length ? args[0] as integer : 0;
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
     this.setCursor(this.getCursor());
     this.displayMoves(this.scene.selectedTarget);
-    console.log(this.scene.selectedTarget)
 
     return true;
   }
@@ -159,17 +156,9 @@ export default class FightUiHandler extends UiHandler {
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       ui.add(this.cursorObj);
     }
-
+    const activePokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon()
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
-
     const hasMove = cursor < moveset.length;
-    console.log("before move")
-    if (hasMove) {
-      console.log("has move")
-      console.log(moveset[cursor])
-      const pokemonMove = moveset[cursor];
-      this.updateMovesWindowContainer(pokemonMove)
-    }
 
     this.typeIcon.setVisible(hasMove);
     this.ppLabel.setVisible(hasMove);
@@ -177,88 +166,65 @@ export default class FightUiHandler extends UiHandler {
     this.powerLabel.setVisible(hasMove);
     this.powerText.setVisible(hasMove);
     this.moveCategoryIcon.setVisible(hasMove);
-
     this.cursorObj.setPosition(13 + (cursor % 2 === 1 ? 100 : 0), -31 + (cursor >= 2 ? 15 : 0));
-    console.log(" set cursor")
-    
-    this.selectedMove = (moveset[cursor]).getMove()
-    
-    console.log(this.selectedMove)
+  
+    if (hasMove) {
+      this.selectedMove = (moveset[cursor]).getMove()
+      this.updateMovesWindowContainer(activePokemon,cursor)
+    }
     return changed;
   }
 
 // have a listener to update dynamically when changing options in settings.ts AND keep move window active during SelectTargetPhase and have it dynamically change there too depending on which pokemon im hovering over
-  displayMoves(pokemon?: Pokemon) {
-    const opponentPokemon = pokemon || this.scene.getEnemyPokemon();
-    
-    const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
-    console.log("in display moves")
-   
-    for (let m = 0; m < 4; m++) {
-      const moveText = addTextObject(this.scene, m % 2 === 0 ? 0 : 100, m < 2 ? 0 : 16, '-', TextStyle.WINDOW);
+  // displayMoves(pokemon?: Pokemon) {
+  //   const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
+  //   const targetPokemon = pokemon || this.scene.getEnemyPokemon();
+  //   this.setMoveColor(targetPokemon === actingPokemon ? this.scene.getEnemyPokemon() : targetPokemon, actingPokemon);
 
-      if (m < moveset.length){
-        const pokemonMove = moveset[m];
-        moveText.setText(moveset[m].getName());
-        const effectiveness = (opponentPokemon.getAttackMoveEffectiveness(opponentPokemon,pokemonMove))
-        
-        let color = "white"; // Default to white if setting is off or for normal effectiveness
-        if (this.scene.showEffectiveness) {
-          if (effectiveness === 0) {
-            color = "gray"; // No effect
-          } else if (effectiveness === 4) {
-            color = "limegreen"; // x4 Super effective
-          } else if (effectiveness === 2) {
-            color = "green"; // x2 Super effective
-          } else if (effectiveness === 0.5) {
-            color = "red"; // x0.5 Not very effective
-          } else if (effectiveness === 0.25) {
-            color = "darkred"; // x0.25 Not very effective
-          }
-        }
-        moveText.setColor(color);
-        
-      }
-      this.movesContainer.add(moveText);
-      
-    }
-  }
+  // }
 
-  displayMovesTS(pokemon?: Pokemon,move?:Moves) {
-    const opponentPokemon = pokemon || this.scene.getEnemyPokemon();
-    
-    const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
-    console.log("in display moves ts")
-   
-    for (let m = 0; m < 4; m++) {
-      const moveText = addTextObject(this.scene, m % 2 === 0 ? 0 : 100, m < 2 ? 0 : 16, '-', TextStyle.WINDOW);
-
-      const pokemonMove = moveset[m];
-      if (pokemonMove.moveId===move) {
-        this.updateMovesWindowContainer(pokemonMove)
-    }
+  // displayMovesTS(pokemon: Pokemon,move:Moves) {
+  //   const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
+  //   const targetPokemon = pokemon;
   
+  //   this.setMoveColor(targetPokemon,actingPokemon,move)
+   
+  // }
+  displayMoves(pokemon?: Pokemon,move?:Moves) {
+    const actingPokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon();
+    const targetPokemon = pokemon || this.scene.getEnemyPokemon();
+    this.setMoveColor(targetPokemon === actingPokemon ? this.scene.getEnemyPokemon() : targetPokemon, actingPokemon,move);
+
+  }
+  setMoveColor(targetPokemon:Pokemon,actingPokemon:Pokemon,move?:Moves){
+    const moveset = actingPokemon.getMoveset();
+    for (let m = 0; m < 4; m++) {
+      const moveText = addTextObject(this.scene, m % 2 === 0 ? 0 : 100, m < 2 ? 0 : 16, '-', TextStyle.WINDOW);
+
       this.typeIcon.setVisible(true);
       this.ppText.setVisible(true);
       this.moveCategoryIcon.setVisible(true);
 
       if (m < moveset.length){
         const pokemonMove = moveset[m];
+        if (pokemonMove.moveId===move) {
+          this.updateMovesWindowContainer(actingPokemon,m)
+        }
+
         moveText.setText(moveset[m].getName());
-        const effectiveness = (opponentPokemon.getAttackMoveEffectiveness(opponentPokemon,pokemonMove))
+        const effectiveness = (targetPokemon.getAttackMoveEffectiveness(targetPokemon,pokemonMove))
         
-        let color = "white"; // Default to white if setting is off or for normal effectiveness
         if (this.scene.showEffectiveness) {
           if (effectiveness === 0) {
             moveText.setColor(this.getTextColor(TextStyle.ZERO_X_EFFECT)); // No effect
           } else if (effectiveness === 4) {
-            moveText.setColor("limegreen"); // x4 Super effective
+            moveText.setColor(this.getTextColor(TextStyle.FOUR_X_EFFECT)); // x4 Super effective
           } else if (effectiveness === 2) {
-            moveText.setColor(this.getTextColor(TextStyle.TWO_X_EFFECT));
+            moveText.setColor(this.getTextColor(TextStyle.TWO_X_EFFECT));  // x2 effective
           } else if (effectiveness === 0.5) {
-            moveText.setColor("red"); // x0.5 Not very effective
+            moveText.setColor(this.getTextColor(TextStyle.HALF_X_EFFECT)); // x0.5 Not very effective
           } else if (effectiveness === 0.25) {
-            moveText.setColor("darkred"); // x0.25 Not very effective
+            moveText.setColor(this.getTextColor(TextStyle.QUARTER_X_EFFECT)); // x0.25 Not very effective
           }
         }
         
@@ -299,16 +265,17 @@ export default class FightUiHandler extends UiHandler {
     this.moveCategoryIcon.setVisible(true);
   }
 
-  updateMovesWindowContainer(pokemonMove){
+  updateMovesWindowContainer(actingPokemon:Pokemon,m:integer){
+    const pokemonMove = actingPokemon.getMoveset()[m];
     this.typeIcon.setTexture('types', Type[pokemonMove.getMove().type].toLowerCase()).setScale(0.8);
-        this.moveCategoryIcon.setTexture('categories', MoveCategory[pokemonMove.getMove().category].toLowerCase()).setScale(1.0);
+    this.moveCategoryIcon.setTexture('categories', MoveCategory[pokemonMove.getMove().category].toLowerCase()).setScale(1.0);
 
-        const power = pokemonMove.getMove().power;
-        const maxPP = pokemonMove.getMovePp();
-        const pp = maxPP - pokemonMove.ppUsed;
+    const power = pokemonMove.getMove().power;
+    const maxPP = pokemonMove.getMovePp();
+    const pp = maxPP - pokemonMove.ppUsed;
 
-        this.ppText.setText(`${Utils.padInt(pp, 2, '  ')}/${Utils.padInt(maxPP, 2, '  ')}`);
-        this.powerText.setText(`${power >= 0 ? power : '---'}`);
+    this.ppText.setText(`${Utils.padInt(pp, 2, '  ')}/${Utils.padInt(maxPP, 2, '  ')}`);
+    this.powerText.setText(`${power >= 0 ? power : '---'}`);
   }
 
 }
