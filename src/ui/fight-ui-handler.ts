@@ -158,7 +158,6 @@ export default class FightUiHandler extends UiHandler {
 
     const activePokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon()
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
-    
     const hasMove = cursor < moveset.length;
 
     this.typeIcon.setVisible(hasMove);
