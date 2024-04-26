@@ -5,11 +5,13 @@ import { Command } from "./command-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
 import * as Utils from "../utils";
-import { CommandPhase } from "../phases";
+import { CommandPhase, SelectTargetPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from '../plugins/i18n';
-import { EnemyPokemon, PlayerPokemon } from "../field/pokemon.js";
+import Pokemon, { EnemyPokemon, PlayerPokemon } from "../field/pokemon.js";
 import  Move  from "../data/move";
+import { PokemonMove } from "pokenode-ts";
+import { Moves } from "#app/data/enums/moves.js";
 
 export default class FightUiHandler extends UiHandler {
   private movesContainer: Phaser.GameObjects.Container;
@@ -20,6 +22,7 @@ export default class FightUiHandler extends UiHandler {
   private powerText: Phaser.GameObjects.Text;
   private cursorObj: Phaser.GameObjects.Image;
   private moveCategoryIcon: Phaser.GameObjects.Sprite;
+  private selectedMove: Move;
 
   protected fieldIndex: integer = 0;
   protected cursor2: integer = 0;
@@ -68,12 +71,14 @@ export default class FightUiHandler extends UiHandler {
   show(args: any[]): boolean {
     super.show(args);
 
+    console.log(this.selectedMove)
     this.fieldIndex = args.length ? args[0] as integer : 0;
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
     this.setCursor(this.getCursor());
     this.displayMoves(this.scene.selectedTarget);
+    console.log(this.scene.selectedTarget)
 
     return true;
   }
@@ -158,18 +163,12 @@ export default class FightUiHandler extends UiHandler {
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
 
     const hasMove = cursor < moveset.length;
-
+    console.log("before move")
     if (hasMove) {
+      console.log("has move")
+      console.log(moveset[cursor])
       const pokemonMove = moveset[cursor];
-      this.typeIcon.setTexture('types', Type[pokemonMove.getMove().type].toLowerCase()).setScale(0.8);
-      this.moveCategoryIcon.setTexture('categories', MoveCategory[pokemonMove.getMove().category].toLowerCase()).setScale(1.0);
-
-      const power = pokemonMove.getMove().power;
-      const maxPP = pokemonMove.getMovePp();
-      const pp = maxPP - pokemonMove.ppUsed;
-
-      this.ppText.setText(`${Utils.padInt(pp, 2, '  ')}/${Utils.padInt(maxPP, 2, '  ')}`);
-      this.powerText.setText(`${power >= 0 ? power : '---'}`);
+      this.updateMovesWindowContainer(pokemonMove)
     }
 
     this.typeIcon.setVisible(hasMove);
@@ -180,16 +179,21 @@ export default class FightUiHandler extends UiHandler {
     this.moveCategoryIcon.setVisible(hasMove);
 
     this.cursorObj.setPosition(13 + (cursor % 2 === 1 ? 100 : 0), -31 + (cursor >= 2 ? 15 : 0));
-
+    console.log(" set cursor")
+    
+    this.selectedMove = (moveset[cursor]).getMove()
+    
+    console.log(this.selectedMove)
     return changed;
   }
 
 // have a listener to update dynamically when changing options in settings.ts AND keep move window active during SelectTargetPhase and have it dynamically change there too depending on which pokemon im hovering over
-  displayMoves(pokemon?: EnemyPokemon) {
+  displayMoves(pokemon?: Pokemon) {
     const opponentPokemon = pokemon || this.scene.getEnemyPokemon();
     
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
-  
+    console.log("in display moves")
+   
     for (let m = 0; m < 4; m++) {
       const moveText = addTextObject(this.scene, m % 2 === 0 ? 0 : 100, m < 2 ? 0 : 16, '-', TextStyle.WINDOW);
 
@@ -220,6 +224,50 @@ export default class FightUiHandler extends UiHandler {
     }
   }
 
+  displayMovesTS(pokemon?: Pokemon,move?:Moves) {
+    const opponentPokemon = pokemon || this.scene.getEnemyPokemon();
+    
+    const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
+    console.log("in display moves ts")
+   
+    for (let m = 0; m < 4; m++) {
+      const moveText = addTextObject(this.scene, m % 2 === 0 ? 0 : 100, m < 2 ? 0 : 16, '-', TextStyle.WINDOW);
+
+      const pokemonMove = moveset[m];
+      if (pokemonMove.moveId===move) {
+        this.updateMovesWindowContainer(pokemonMove)
+    }
+  
+      this.typeIcon.setVisible(true);
+      this.ppText.setVisible(true);
+      this.moveCategoryIcon.setVisible(true);
+
+      if (m < moveset.length){
+        const pokemonMove = moveset[m];
+        moveText.setText(moveset[m].getName());
+        const effectiveness = (opponentPokemon.getAttackMoveEffectiveness(opponentPokemon,pokemonMove))
+        
+        let color = "white"; // Default to white if setting is off or for normal effectiveness
+        if (this.scene.showEffectiveness) {
+          if (effectiveness === 0) {
+            moveText.setColor(this.getTextColor(TextStyle.ZERO_X_EFFECT)); // No effect
+          } else if (effectiveness === 4) {
+            moveText.setColor("limegreen"); // x4 Super effective
+          } else if (effectiveness === 2) {
+            moveText.setColor(this.getTextColor(TextStyle.TWO_X_EFFECT));
+          } else if (effectiveness === 0.5) {
+            moveText.setColor("red"); // x0.5 Not very effective
+          } else if (effectiveness === 0.25) {
+            moveText.setColor("darkred"); // x0.25 Not very effective
+          }
+        }
+        
+      }
+      this.movesContainer.add(moveText);
+      
+    }
+  }
+
   clear() {
     super.clear();
     this.clearMoves();
@@ -240,6 +288,27 @@ export default class FightUiHandler extends UiHandler {
     if (this.cursorObj)
       this.cursorObj.destroy();
     this.cursorObj = null;
+  }
+
+  setVisible(){
+    this.typeIcon.setVisible(true);
+    this.ppLabel.setVisible(true);
+    this.ppText.setVisible(true);
+    this.powerLabel.setVisible(true);
+    this.powerText.setVisible(true);
+    this.moveCategoryIcon.setVisible(true);
+  }
+
+  updateMovesWindowContainer(pokemonMove){
+    this.typeIcon.setTexture('types', Type[pokemonMove.getMove().type].toLowerCase()).setScale(0.8);
+        this.moveCategoryIcon.setTexture('categories', MoveCategory[pokemonMove.getMove().category].toLowerCase()).setScale(1.0);
+
+        const power = pokemonMove.getMove().power;
+        const maxPP = pokemonMove.getMovePp();
+        const pp = maxPP - pokemonMove.ppUsed;
+
+        this.ppText.setText(`${Utils.padInt(pp, 2, '  ')}/${Utils.padInt(maxPP, 2, '  ')}`);
+        this.powerText.setText(`${power >= 0 ? power : '---'}`);
   }
 
 }
