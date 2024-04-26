@@ -1610,13 +1610,11 @@ export class TurnInitPhase extends FieldPhase {
 
 export class CommandPhase extends FieldPhase {
   protected fieldIndex: integer;
-  // protected selectedTarget: EnemyPokemon;
 
-  constructor(scene: BattleScene, fieldIndex: integer, selectedTarget?: EnemyPokemon) {
+  constructor(scene: BattleScene, fieldIndex: integer, selectedTarget?: Pokemon) {
     super(scene);
 
     this.fieldIndex = fieldIndex;
-    // this.selectedTarget = selectedTarget;
   }
 
   start() {

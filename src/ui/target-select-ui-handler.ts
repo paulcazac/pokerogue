@@ -31,6 +31,7 @@ export default class TargetSelectUiHandler extends UiHandler {
     const ui = this.getUi();
 
     if (!this.cursorObj) {
+      console.log("target cursor")
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       this.cursorObj.setVisible(false)
       ui.add(this.cursorObj);
@@ -39,6 +40,7 @@ export default class TargetSelectUiHandler extends UiHandler {
 
   show(args: any[]): boolean {
     console.log("SHOW")
+    
     if (args.length < 3)
       return false;
 
@@ -63,6 +65,10 @@ export default class TargetSelectUiHandler extends UiHandler {
 
     if (!this.targets.length)
       return false;
+
+    console.log("****")
+    console.log(this.targetSelectCallback)
+    console.log(this.targets)
 
     this.setCursor(this.targets.indexOf(this.cursor) > -1 ? this.cursor : this.targets[0]);
     const target = this.scene.getField()[this.cursor]
@@ -162,7 +168,6 @@ export default class TargetSelectUiHandler extends UiHandler {
     }
     if (target)
       target.setAlpha(1);
-    
   }
 
   clear() {

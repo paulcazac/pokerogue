@@ -5,7 +5,7 @@ import { Command } from "./command-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
 import * as Utils from "../utils";
-import { CommandPhase } from "../phases";
+import { CommandPhase, SelectTargetPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from '../plugins/i18n';
 import Pokemon from "../field/pokemon.js";
@@ -20,6 +20,7 @@ export default class FightUiHandler extends UiHandler {
   private powerText: Phaser.GameObjects.Text;
   private cursorObj: Phaser.GameObjects.Image;
   private moveCategoryIcon: Phaser.GameObjects.Sprite;
+  private selectedMove: Move;
 
   protected fieldIndex: integer = 0;
   protected cursor2: integer = 0;
@@ -68,12 +69,14 @@ export default class FightUiHandler extends UiHandler {
   show(args: any[]): boolean {
     super.show(args);
 
+    console.log(this.selectedMove)
     this.fieldIndex = args.length ? args[0] as integer : 0;
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
     this.setCursor(this.getCursor());
     this.displayMoves(this.scene.selectedTarget);
+    console.log(this.scene.selectedTarget)
 
     return true;
   }
