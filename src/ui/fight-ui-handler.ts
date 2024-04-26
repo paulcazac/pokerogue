@@ -1,11 +1,11 @@
 import BattleScene, { Button } from "../battle-scene";
 import { addTextObject, TextStyle } from "./text";
-import { getTypeDamageMultiplier, Type } from "../data/type";
+import { Type } from "../data/type";
 import { Command } from "./command-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
 import * as Utils from "../utils";
-import { CommandPhase, SelectTargetPhase } from "../phases";
+import { CommandPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from '../plugins/i18n';
 import Pokemon from "../field/pokemon.js";
@@ -20,7 +20,6 @@ export default class FightUiHandler extends UiHandler {
   private powerText: Phaser.GameObjects.Text;
   private cursorObj: Phaser.GameObjects.Image;
   private moveCategoryIcon: Phaser.GameObjects.Sprite;
-  private selectedMove: Move;
 
   protected fieldIndex: integer = 0;
   protected cursor2: integer = 0;
@@ -68,7 +67,9 @@ export default class FightUiHandler extends UiHandler {
 
   show(args: any[]): boolean {
     super.show(args);
+
     this.fieldIndex = args.length ? args[0] as integer : 0;
+
     const messageHandler = this.getUi().getMessageHandler();
     messageHandler.commandWindow.setVisible(false);
     messageHandler.movesWindowContainer.setVisible(true);
@@ -149,14 +150,15 @@ export default class FightUiHandler extends UiHandler {
       else
         this.cursor2 = cursor;
     }
+
     if (!this.cursorObj) {
-      
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       ui.add(this.cursorObj);
     }
 
     const activePokemon =(this.scene.getCurrentPhase() as CommandPhase).getPokemon()
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
+    
     const hasMove = cursor < moveset.length;
 
     this.typeIcon.setVisible(hasMove);
@@ -213,7 +215,6 @@ export default class FightUiHandler extends UiHandler {
         
       }
       this.movesContainer.add(moveText);
-      
     }
   }
 

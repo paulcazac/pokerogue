@@ -57,6 +57,7 @@ import { fetchDailyRunSeed, getDailyRunStarters } from "./data/daily-run";
 import { GameModes, gameModes } from "./game-mode";
 import { getPokemonSpecies, speciesStarters } from "./data/pokemon-species";
 import i18next from './plugins/i18n';
+import TargetSelectUiHandler from "./ui/target-select-ui-handler";
 
 export class LoginPhase extends Phase {
   private showText: boolean;
@@ -928,6 +929,7 @@ export class EncounterPhase extends BattlePhase {
     }
 
     handleTutorial(this.scene, Tutorial.Access_Menu).then(() => super.end());
+    
   }
 
   tryOverrideForBattleSpec(): boolean {
@@ -949,6 +951,7 @@ export class EncounterPhase extends BattlePhase {
 export class NextEncounterPhase extends EncounterPhase {
   constructor(scene: BattleScene) {
     super(scene);
+    // this.scene.newEncounter=false; 
   }
 
   doEncounter(): void {
@@ -1611,7 +1614,7 @@ export class TurnInitPhase extends FieldPhase {
 export class CommandPhase extends FieldPhase {
   protected fieldIndex: integer;
 
-  constructor(scene: BattleScene, fieldIndex: integer, selectedTarget?: Pokemon) {
+  constructor(scene: BattleScene, fieldIndex: integer) {
     super(scene);
 
     this.fieldIndex = fieldIndex;
@@ -1685,6 +1688,7 @@ export class CommandPhase extends FieldPhase {
             this.scene.unshiftPhase(new SelectTargetPhase(this.scene, this.fieldIndex)); 
           }
           this.scene.currentBattle.turnCommands[this.fieldIndex] = turnCommand;
+          
           success = true;
         } else if (cursor < playerPokemon.getMoveset().length) {
           const move = playerPokemon.getMoveset()[cursor];
@@ -1912,8 +1916,8 @@ export class SelectTargetPhase extends PokemonPhase {
       this.scene.ui.setMode(Mode.MESSAGE);
       if (cursor === -1) {
         this.scene.currentBattle.turnCommands[this.fieldIndex] = null;
-        this.scene.unshiftPhase(new CommandPhase(this.scene, this.fieldIndex,this.scene.selectedTarget));
-      } else{
+        this.scene.unshiftPhase(new CommandPhase(this.scene, this.fieldIndex));
+      } else
         turnCommand.targets = [ cursor ];
         this.scene.newEncounter=false;
       if (turnCommand.command === Command.BALL && this.fieldIndex)
