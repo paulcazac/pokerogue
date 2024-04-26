@@ -700,7 +700,7 @@ export default abstract class Pokemon extends Phaser.GameObjects.Container {
       this.moveset[0] = new PokemonMove(MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[MOVE_OVERRIDE].pp));
     else if (OPP_MOVE_OVERRIDE && !this.isPlayer())
       this.moveset[0] = new PokemonMove(OPP_MOVE_OVERRIDE, Math.min(this.moveset[0].ppUsed, allMoves[OPP_MOVE_OVERRIDE].pp));
-
+    
     return ret;
   }
 
