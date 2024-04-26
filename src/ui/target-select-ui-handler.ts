@@ -124,6 +124,7 @@ export default class TargetSelectUiHandler extends UiHandler {
 
   setCursor(cursor: integer): boolean {
     const lastCursor = this.cursor;
+    
     const ret = super.setCursor(cursor);
 
     if (this.targetFlashTween) {
