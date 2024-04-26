@@ -26,7 +26,10 @@ export enum TextStyle {
   TOOLTIP_CONTENT,
 
   ZERO_X_EFFECT,
+  FOUR_X_EFFECT,
   TWO_X_EFFECT,
+  HALF_X_EFFECT,
+  QUARTER_X_EFFECT,
 };
 
 export function addTextObject(scene: Phaser.Scene, x: number, y: number, content: string, style: TextStyle, extraStyleOptions?: Phaser.Types.GameObjects.Text.TextStyle): Phaser.GameObjects.Text {
@@ -170,8 +173,15 @@ export function getTextColor(textStyle: TextStyle, shadow?: boolean, uiTheme: Ui
 
     case TextStyle.ZERO_X_EFFECT:
       return !shadow ? '#a0a0a0' : '#6b5a73';
+    case TextStyle.FOUR_X_EFFECT:
+      return !shadow ? '#2ecc71' : '#6b5a73';
     case TextStyle.TWO_X_EFFECT:
-      return !shadow ? '#1e8a1e' : '#6b5a73';
+      return !shadow ? '#229954' : '#6b5a73';
+    case TextStyle.HALF_X_EFFECT:
+      return !shadow ? '#922b21' : '#6b5a73';
+    case TextStyle.QUARTER_X_EFFECT:
+      return !shadow ? '#e74c3c' : '#6b5a73';
+      
   }
 }
 

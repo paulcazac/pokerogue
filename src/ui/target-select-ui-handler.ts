@@ -7,7 +7,7 @@ import * as Utils from "../utils";
 import { getMoveTargets } from "../data/move";
 import FightUiHandler from "./fight-ui-handler";
 import { CommandPhase } from "#app/phases.js";
-import Pokemon, { EnemyPokemon, PokemonMove } from "#app/field/pokemon.js";
+import Pokemon from "#app/field/pokemon.js";
 
 export type TargetSelectCallback = (cursor: integer) => void;
 
@@ -29,12 +29,9 @@ export default class TargetSelectUiHandler extends UiHandler {
   }
 
   setup(): void {
-    console.log("SETUP")
-
     const ui = this.getUi();
 
     if (!this.cursorObj) {
-      console.log("target cursor")
       this.cursorObj = this.scene.add.image(0, 0, 'cursor');
       this.cursorObj.setVisible(false)
       ui.add(this.cursorObj);
@@ -42,8 +39,6 @@ export default class TargetSelectUiHandler extends UiHandler {
    }
 
   show(args: any[]): boolean {
-    console.log("SHOW")
-    
     if (args.length < 3)
       return false;
 
@@ -64,10 +59,6 @@ export default class TargetSelectUiHandler extends UiHandler {
     if (!this.targets.length)
       return false;
 
-    console.log("****")
-    console.log(this.targetSelectCallback)
-    console.log(this.targets)
-
     this.setCursor(this.targets.indexOf(this.cursor) > -1 ? this.cursor : this.targets[0]);
     const target = this.scene.getField()[this.cursor]
     
@@ -77,44 +68,21 @@ export default class TargetSelectUiHandler extends UiHandler {
   }
 
   showTargetEffectiveness(target:Pokemon){
-    console.log(target)
     const fieldPokemon = this.scene.getField();
-    console.log(fieldPokemon);
 
     // Create a mapping from Pokemon name to action
     const actionMap = fieldPokemon.reduce((map, pokemon, index) => {
         map[pokemon.name] = () => {
             this.clearMoves();
             this.scene.selectedTarget = fieldPokemon[index];
-            this.fightUiHandler.displayMovesTS(fieldPokemon[index], this.move);
+            this.fightUiHandler.displayMoves(fieldPokemon[index], this.move);
         };
         return map;
     }, {});
 
-    // Execute the action if exists
     if (actionMap[target.name]) {
         actionMap[target.name]();
     }
-    // const fieldPokemon= this.scene.getField();
-    // console.log(fieldPokemon)
-      
-    // if (fieldPokemon[0].name===target.name){
-    //   this.clearMoves()
-    //   this.scene.selectedTarget = fieldPokemon[0]
-    //   this.fightUiHandler.displayMovesTS(fieldPokemon[0],this.move);
-    // }
-    // else if(fieldPokemon[1].name===target.name) {
-    //   this.clearMoves()
-    //   this.scene.selectedTarget = fieldPokemon[1]
-    //   this.fightUiHandler.displayMovesTS(fieldPokemon[1],this.move);}
-    // else if(fieldPokemon[2].name===target.name) {
-    //   this.clearMoves()
-    //   this.scene.selectedTarget = fieldPokemon[2]
-    //   this.fightUiHandler.displayMovesTS(fieldPokemon[2],this.move);}
-    // else if(fieldPokemon[3].name===target.name) {
-    //   this.clearMoves()
-    //   this.scene.selectedTarget = fieldPokemon[3]
-    //   this.fightUiHandler.displayMovesTS(fieldPokemon[3],this.move);}
 
   }
 
@@ -207,7 +175,7 @@ export default class TargetSelectUiHandler extends UiHandler {
   displayCursor() {
     const moveset = (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getMoveset();
 
-    for (let m = 0; m < 4; m++) {
+    for (let m = 0; m < moveset.length; m++) {
       const pokemonMove = moveset[m];
       if (pokemonMove.moveId===this.move) {
         this.cursorObj.setPosition(13 + (m % 2 === 1 ? 100 : 0), -31 + (m >= 2 ? 15 : 0));
